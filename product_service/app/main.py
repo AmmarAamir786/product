@@ -22,21 +22,6 @@ def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
 
 
-# The first part of the function, before the yield, will
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    create_db_and_tables()
-    print("Creating table!!!!!! ")
-
-    tasks = asyncio.create_task(consume_messages(
-        settings.KAFKA_PRODUCT_TOPIC, 'broker:19092'))
-    await create_topic(topic=settings.KAFKA_PRODUCT_TOPIC)
-    create_db_and_tables()
-    yield
-
-    for task in tasks:
-        task.cancel()
-        await task
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
