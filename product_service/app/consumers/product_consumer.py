@@ -1,5 +1,5 @@
 import json
-from product_service.app.models.models import Product
+from app.models.models import Product
 from app.crud.product_crud import add_new_product
 from app.db import get_session
 from app.settings import KAFKA_CONSUMER_GROUP_ID_FOR_PRODUCT, KAFKA_PRODUCT_TOPIC
