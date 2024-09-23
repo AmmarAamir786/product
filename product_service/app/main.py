@@ -48,7 +48,7 @@ def read_root():
     return {"Hello": "Product Service"}
 
 
-@app.post("/manage-products/", response_model=Product)
+@app.post("/products/", response_model=Product)
 async def create_new_product(product: Product, producer: Annotated[AIOKafkaProducer, Depends(producer)]):
     """ Create a new product and send it to Kafka"""
     product_dict = {field: getattr(product, field) for field in product.dict()}
@@ -61,13 +61,13 @@ async def create_new_product(product: Product, producer: Annotated[AIOKafkaProdu
     return product
 
 
-@app.get("/manage-products/all", response_model=list[Product])
+@app.get("/products/all", response_model=list[Product])
 def call_all_products(session: Annotated[Session, Depends(get_session)]):
     """ Get all products from the database"""
     return get_all_products(session)
 
 
-@app.get("/manage-products/{product_id}", response_model=Product)
+@app.get("/products/{product_id}", response_model=Product)
 def get_single_product(product_id: int, session: Annotated[Session, Depends(get_session)]):
     """ Get a single product by ID"""
     try:
@@ -78,7 +78,7 @@ def get_single_product(product_id: int, session: Annotated[Session, Depends(get_
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/manage-products/{product_id}", response_model=dict)
+@app.delete("/products/{product_id}", response_model=dict)
 def delete_single_product(product_id: int, session: Annotated[Session, Depends(get_session)]):
     """ Delete a single product by ID"""
     try:
@@ -89,7 +89,7 @@ def delete_single_product(product_id: int, session: Annotated[Session, Depends(g
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.put("/manage-products/{product_id}", response_model=Product)
+@app.put("/products/{product_id}", response_model=Product)
 def update_single_product(product_id: int, product: Product, session: Annotated[Session, Depends(get_session)]):
     """ Update a single product by ID"""
     try:
