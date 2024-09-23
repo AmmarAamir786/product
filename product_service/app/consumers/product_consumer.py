@@ -4,7 +4,7 @@ from app.crud.product_crud import add_new_product
 from app.db import get_session
 from app.settings import KAFKA_CONSUMER_GROUP_ID_FOR_PRODUCT, KAFKA_PRODUCT_TOPIC
 from app.consumers.consumer import create_consumer
-from app.utils import logger
+from app.utils.logger import logger
 
 
 async def consume_products():

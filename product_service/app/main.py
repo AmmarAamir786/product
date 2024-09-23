@@ -14,13 +14,13 @@ from app.db import create_tables, get_session
 from app.kafka.producer import producer
 from app.kafka.topic import create_topic
 from app.consumers.product_consumer import consume_products
-from app.utils import logger
+from app.utils.logger import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # logger.info("Creating Tables")
+    logger.info("Creating Tables")
     create_tables()
-    # logger.info("Tables Created")
+    logger.info("Tables Created")
     
     await create_topic(topic=KAFKA_PRODUCT_TOPIC)
 
