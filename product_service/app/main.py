@@ -1,40 +1,36 @@
 # main.py
 from contextlib import asynccontextmanager
 from typing import Annotated
-from app.topic import create_topic
-from sqlmodel import Session, SQLModel
+from sqlmodel import Session
 from fastapi import FastAPI, Depends, HTTPException
-from typing import AsyncGenerator
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
+from aiokafka import AIOKafkaProducer
 import asyncio
 import json
 
-from app import settings
-from app.db_engine import engine
-from app.models.product_model import Product, ProductUpdate
-from app.crud.product_crud import add_new_product, get_all_products, get_product_by_id, delete_product_by_id, update_product_by_id
-from app.deps import get_session, get_kafka_producer
-from app.consumers.product_consumer import consume_messages
-# from app.consumers.inventory_consumer import consume_inventory_messages
-
-
-def create_db_and_tables() -> None:
-    SQLModel.metadata.create_all(engine)
-
-
+from app.settings import KAFKA_PRODUCT_TOPIC
+from app.models.models import Product
+from app.crud.product_crud import get_all_products, get_product_by_id, delete_product_by_id, update_product_by_id
+from app.db import create_tables, get_session
+from app.kafka.producer import producer
+from app.kafka.topic import create_topic
+from app.consumers.product_consumer import consume_products
+from app.utils import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Creating Tables")
+    create_tables()
+    logger.info("Tables Created")
     
-    create_db_and_tables()
-    
-    await create_topic(topic=settings.KAFKA_PRODUCT_TOPIC)
+    await create_topic(topic=KAFKA_PRODUCT_TOPIC)
+
     loop = asyncio.get_event_loop()
     tasks = [
-        loop.create_task(consume_messages(
-            settings.KAFKA_PRODUCT_TOPIC, 'broker:19092'))
+        loop.create_task(consume_products())
     ]
+
     yield
+
     for task in tasks:
         task.cancel()
         await task
@@ -42,7 +38,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    title="Hello World API with DB",
+    title="Product Service",
     version="0.0.1",
 )
 
@@ -53,17 +49,14 @@ def read_root():
 
 
 @app.post("/manage-products/", response_model=Product)
-async def create_new_product(product: Product, session: Annotated[Session, Depends(get_session)], producer: Annotated[AIOKafkaProducer, Depends(get_kafka_producer)]):
+async def create_new_product(product: Product, producer: Annotated[AIOKafkaProducer, Depends(producer)]):
     """ Create a new product and send it to Kafka"""
     product_dict = {field: getattr(product, field) for field in product.dict()}
     product_json = json.dumps(product_dict).encode("utf-8")
     print("product_JSON:", product_json)
     
     # Produce message
-    await producer.send_and_wait(settings.KAFKA_PRODUCT_TOPIC, product_json)
-    
-    # Save the product to the database
-    # new_product = add_new_product(product, session)
+    await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, product_json)
     
     return product
 
@@ -96,8 +89,8 @@ def delete_single_product(product_id: int, session: Annotated[Session, Depends(g
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.patch("/manage-products/{product_id}", response_model=Product)
-def update_single_product(product_id: int, product: ProductUpdate, session: Annotated[Session, Depends(get_session)]):
+@app.put("/manage-products/{product_id}", response_model=Product)
+def update_single_product(product_id: int, product: Product, session: Annotated[Session, Depends(get_session)]):
     """ Update a single product by ID"""
     try:
         return update_product_by_id(product_id=product_id, to_update_product_data=product, session=session)

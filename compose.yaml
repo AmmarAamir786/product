@@ -3,29 +3,28 @@
 services:
   product_service:
     build:
-      context: ./product_service
-      dockerfile: Dockerfile.dev
+      context: ./product_service #Where is our docker file located?
+      dockerfile: Dockerfile.dev #What is the name of our docker file in our directory
     volumes:
-      - ./product_service:/code
-    depends_on:
+      - ./product_service:/code #Maps the local directory with our container
+    depends_on: #This service will only run if the mentioned services are up and running
       - kafka-ui
       - broker
     ports:
-      - "8008:8008"
-    command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8008 --reload
+      - "8011:8011" #Maps the localhost with our container port
 
-  # order_service:
-  #   build:
-  #     context: ./order_service
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./order_service:/code
-  #   depends_on:
-  #     - kafka-ui
-  #     - broker
-  #   ports:
-  #     - "8004:8004"
-  #   command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload
+  product_db:
+    image: postgres:latest  # Use the official PostgreSQL image
+    restart: always
+    container_name: Product_db_Cont
+    environment:
+        - POSTGRES_USER=ammar
+        - POSTGRES_PASSWORD=my_password
+        - POSTGRES_DB=product_db
+    ports:
+        - '5433:5432'
+    volumes:
+        - product_db:/var/lib/postgresql/data
 
   # inventory_service:
   #   build:
@@ -37,21 +36,45 @@ services:
   #     - kafka-ui
   #     - broker
   #   ports:
-  #     - "8005:8005"
-  #   command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8005 --reload
+  #     - "8012:8012"
 
-  # notification_service:
+  # inventory_db:
+  #   image: postgres:latest
+  #   restart: always
+  #   container_name: Inventory_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=inventory_db
+  #   ports:
+  #       - '5434:5432'
+  #   volumes:
+  #       - inventory_db:/var/lib/postgresql/data
+
+  # order_service:
   #   build:
-  #     context: ./notification_service
+  #     context: ./order_service
   #     dockerfile: Dockerfile.dev
   #   volumes:
-  #     - ./notification_service:/code
+  #     - ./order_service:/code
   #   depends_on:
   #     - kafka-ui
   #     - broker
   #   ports:
-  #     - "8006:8006"
-  #   command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8006 --reload
+  #     - "8013:8013"
+
+  # order_db:
+  #   image: postgres:latest
+  #   restart: always
+  #   container_name: Order_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=order_db
+  #   ports:
+  #       - '5435:5432'
+  #   volumes:
+  #       - order_db:/var/lib/postgresql/data
 
   # user_service:
   #   build:
@@ -63,73 +86,20 @@ services:
   #     - kafka-ui
   #     - broker
   #   ports:
-  #     - "8007:8007"
-  #   command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8007 --reload
-
-  product_db:
-    image: postgres:latest
-    restart: always
-    container_name: product_db_container
-    environment:
-      - POSTGRES_USER=asma
-      - POSTGRES_PASSWORD=my_password
-      - POSTGRES_DB=product_db
-    ports:
-      - '5433:5432'
-    volumes:
-      - product_db:/var/lib/postgresql/data
+  #     - "8014:8014"
 
   # user_db:
   #   image: postgres:latest
   #   restart: always
-  #   container_name: user_db_container
+  #   container_name: User_db_Cont
   #   environment:
-  #     - POSTGRES_USER=asma
-  #     - POSTGRES_PASSWORD=my_password
-  #     - POSTGRES_DB=user_db
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=user_db
   #   ports:
-  #     - '5434:5432'
+  #       - '5436:5432'
   #   volumes:
-  #     - user_db:/var/lib/postgresql/data
-
-  # order_db:
-  #   image: postgres:latest
-  #   restart: always
-  #   container_name: order_db_container
-  #   environment:
-  #     - POSTGRES_USER=asma
-  #     - POSTGRES_PASSWORD=my_password
-  #     - POSTGRES_DB=order_db
-  #   ports:
-  #     - '5435:5432'
-  #   volumes:
-  #     - order_db:/var/lib/postgresql/data
-
-  # notification_db:
-  #   image: postgres:latest
-  #   restart: always
-  #   container_name: notification_db_container
-  #   environment:
-  #     - POSTGRES_USER=asma
-  #     - POSTGRES_PASSWORD=my_password
-  #     - POSTGRES_DB=notification_db
-  #   ports:
-  #     - '5436:5432'
-  #   volumes:
-  #     - notification_db:/var/lib/postgresql/data
-
-  # inventory_db:
-    # image: postgres:latest
-    # restart: always
-    # container_name: inventory_db_container
-    # environment:
-    #   - POSTGRES_USER=asma
-    #   - POSTGRES_PASSWORD=my_password
-    #   - POSTGRES_DB=inventory_db
-    # ports:
-    #   - '5437:5432'
-    # volumes:
-    #   - inventory_db:/var/lib/postgresql/data
+  #       - user_db:/var/lib/postgresql/data
 
   broker:
     image: apache/kafka:3.7.0

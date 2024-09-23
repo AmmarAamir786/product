@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlmodel import Session, select
-from app.models.product_model import Product, ProductUpdate
+from product_service.app.models.models import Product
 
 # Add a New Product to the Database
 def add_new_product(product_data: Product, session: Session):
@@ -34,7 +34,7 @@ def delete_product_by_id(product_id: int, session: Session):
     return {"message": "Product Deleted Successfully"}
 
 # Update Product by ID
-def update_product_by_id(product_id: int, to_update_product_data:ProductUpdate, session: Session):
+def update_product_by_id(product_id: int, to_update_product_data:Product, session: Session):
     # Step 1: Get the Product by ID
     product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
     if product is None:
