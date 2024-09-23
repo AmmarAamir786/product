@@ -6,7 +6,7 @@ services:
       context: ./product_service #Where is our docker file located?
       dockerfile: Dockerfile.dev #What is the name of our docker file in our directory
     volumes:
-      - ./product_service:/code #Maps the local directory with our container
+      - ./product_service:/app #Maps the local directory with our container
     depends_on: #This service will only run if the mentioned services are up and running
       - kafka-ui
       - broker
