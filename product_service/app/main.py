@@ -51,13 +51,11 @@ def read_root():
 @app.post("/products/", response_model=Product)
 async def create_new_product(
     product: Product, 
-    producer: AIOKafkaProducer = Depends(producer)
+    producer: Annotated[AIOKafkaProducer, Depends(producer)]
 ):
     """ Create a new product and send it to Kafka"""
-    
     # Convert product object to JSON string
-    product_dict = product.dict()
-    product_json = json.dumps(product_dict).encode("utf-8")
+    product_json = json.dumps(product.dict()).encode("utf-8")
     print("product_JSON:", product_json)
     
     # Send message to Kafka
