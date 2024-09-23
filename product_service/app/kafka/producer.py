@@ -1,5 +1,5 @@
 from aiokafka import AIOKafkaProducer
-from product_service.app.settings import BOOTSTRAP_SERVER
+from app.settings import BOOTSTRAP_SERVER
 
 async def producer(topic, message):
     producer = AIOKafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER)
