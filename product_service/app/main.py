@@ -18,9 +18,9 @@ from app.utils import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Creating Tables")
+    # logger.info("Creating Tables")
     create_tables()
-    logger.info("Tables Created")
+    # logger.info("Tables Created")
     
     await create_topic(topic=KAFKA_PRODUCT_TOPIC)
 
