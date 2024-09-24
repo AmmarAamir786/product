@@ -8,7 +8,7 @@ import asyncio
 import json
 
 from app.settings import KAFKA_PRODUCT_TOPIC
-from app.models.models import Product
+from app.models.models import Product, ProductCreate
 from app.crud.product_crud import get_all_products, get_product_by_id, delete_product_by_id, update_product_by_id
 from app.db import create_tables, get_session
 from app.kafka.producer import producer
@@ -50,10 +50,10 @@ def read_root():
 
 @app.post("/products/", response_model=Product)
 async def create_new_product(
-    product: Product, 
+    product: ProductCreate,  # Use ProductCreate model for POST
     producer: Annotated[AIOKafkaProducer, Depends(producer)]
 ):
-    """ Create a new product and send it to Kafka"""
+    """Create a new product and send it to Kafka"""
     # Convert product object to JSON string
     product_json = json.dumps(product.dict()).encode("utf-8")
     print("product_JSON:", product_json)
@@ -61,7 +61,7 @@ async def create_new_product(
     # Send message to Kafka
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, product_json)
     
-    return product
+    return product  # No 'id' in ProductCreate but will be added when returned from Kafka
 
 
 @app.get("/products/all", response_model=list[Product])
@@ -93,7 +93,7 @@ def delete_single_product(product_id: int, session: Annotated[Session, Depends(g
 
 
 @app.put("/products/{product_id}", response_model=Product)
-def update_single_product(product_id: int, product: Product, session: Annotated[Session, Depends(get_session)]):
+def update_single_product(product_id: int, product: ProductUpdate, session: Annotated[Session, Depends(get_session)]):
     """Update a single product by ID"""
     try:
         return update_product_by_id(product_id=product_id, to_update_product_data=product, session=session)

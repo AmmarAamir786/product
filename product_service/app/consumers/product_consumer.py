@@ -1,5 +1,5 @@
 import json
-from app.models.models import Product
+from app.models.models import ProductCreate
 from app.crud.product_crud import add_new_product
 from app.db import get_session
 from app.settings import KAFKA_CONSUMER_GROUP_ID_FOR_PRODUCT, KAFKA_PRODUCT_TOPIC
@@ -29,7 +29,7 @@ async def consume_products():
                     # Attempt to insert product
                     try:
                         db_insert_product = add_new_product(
-                            product_data=Product(**product_data), session=session)
+                            product_data=ProductCreate(**product_data), session=session)  # Use ProductCreate
                         session.commit()  # Ensure session commit
                         logger.info("DB_INSERT_PRODUCT", db_insert_product)
                     except Exception as e:
