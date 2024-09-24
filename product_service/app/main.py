@@ -83,7 +83,7 @@ def get_single_product(product_id: int, session: Annotated[Session, Depends(get_
 
 @app.delete("/products/{product_id}", response_model=dict)
 def delete_single_product(product_id: int, session: Annotated[Session, Depends(get_session)]):
-    """ Delete a single product by ID"""
+    """Delete a single product by ID"""
     try:
         return delete_product_by_id(product_id=product_id, session=session)
     except HTTPException as e:
@@ -94,7 +94,7 @@ def delete_single_product(product_id: int, session: Annotated[Session, Depends(g
 
 @app.put("/products/{product_id}", response_model=Product)
 def update_single_product(product_id: int, product: Product, session: Annotated[Session, Depends(get_session)]):
-    """ Update a single product by ID"""
+    """Update a single product by ID"""
     try:
         return update_product_by_id(product_id=product_id, to_update_product_data=product, session=session)
     except HTTPException as e:

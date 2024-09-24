@@ -23,27 +23,31 @@ def get_product_by_id(product_id: int, session: Session):
 
 # Delete Product by ID
 def delete_product_by_id(product_id: int, session: Session):
-    # Step 1: Get the Product by ID
     product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    # Step 2: Delete the Product
+
     session.delete(product)
     session.commit()
-    return {"message": "Product Deleted Successfully"}
+
+    return {"message": "Product deleted successfully", "deleted_product": product.dict()}  # Return product info
 
 # Update Product by ID
-def update_product_by_id(product_id: int, to_update_product_data:Product, session: Session):
-    # Step 1: Get the Product by ID
+def update_product_by_id(product_id: int, to_update_product_data: Product, session: Session):
     product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    # Step 2: Update the Product
-    hero_data = to_update_product_data.model_dump(exclude_unset=True)
-    product.sqlmodel_update(hero_data)
+
+    # Update product details
+    update_data = to_update_product_data.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(product, key, value)
+
     session.add(product)
     session.commit()
-    return product
+    session.refresh(product)
+    
+    return product  # Return the updated product
 
 # Validate Product by ID
 def validate_product_by_id(product_id: int, session: Session) -> Product | None:
