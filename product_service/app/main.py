@@ -70,11 +70,11 @@ def call_all_products(session: Annotated[Session, Depends(get_session)]):
     return get_all_products(session)
 
 
-@app.get("/products/{product_id}", response_model=Product)
-def get_single_product(product_id: int, session: Annotated[Session, Depends(get_session)]):
+@app.get("/products/{id}", response_model=Product)
+def get_single_product(id: int, session: Annotated[Session, Depends(get_session)]):
     """ Get a single product by ID"""
     try:
-        return get_product_by_id(product_id=product_id, session=session)
+        return get_product_by_id(id=id, session=session)
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -82,21 +82,21 @@ def get_single_product(product_id: int, session: Annotated[Session, Depends(get_
 
 
 @app.delete("/products/{product_id}", response_model=dict)
-def delete_single_product(product_id: int, session: Annotated[Session, Depends(get_session)]):
+def delete_single_product(id: int, session: Annotated[Session, Depends(get_session)]):
     """Delete a single product by ID"""
     try:
-        return delete_product_by_id(product_id=product_id, session=session)
+        return delete_product_by_id(id=id, session=session)
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.put("/products/{product_id}", response_model=Product)
-def update_single_product(product_id: int, product: ProductUpdate, session: Annotated[Session, Depends(get_session)]):
+@app.put("/products/{id}", response_model=Product)
+def update_single_product(id: int, product: ProductUpdate, session: Annotated[Session, Depends(get_session)]):
     """Update a single product by ID"""
     try:
-        return update_product_by_id(product_id=product_id, to_update_product_data=product, session=session)
+        return update_product_by_id(id=id, to_update_product_data=product, session=session)
     except HTTPException as e:
         raise e
     except Exception as e:

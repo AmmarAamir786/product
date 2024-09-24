@@ -16,15 +16,15 @@ def get_all_products(session: Session):
     return all_products
 
 # Get a Product by ID
-def get_product_by_id(product_id: int, session: Session):
-    product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
+def get_product_by_id(id: int, session: Session):
+    product = session.exec(select(Product).where(Product.id == id)).one_or_none()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
 # Delete Product by ID
-def delete_product_by_id(product_id: int, session: Session):
-    product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
+def delete_product_by_id(id: int, session: Session):
+    product = session.exec(select(Product).where(Product.id == id)).one_or_none()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
 
@@ -34,8 +34,8 @@ def delete_product_by_id(product_id: int, session: Session):
     return {"message": "Product deleted successfully", "deleted_product": product.dict()}  # Return product info
 
 # Update Product by ID
-def update_product_by_id(product_id: int, to_update_product_data: ProductUpdate, session: Session):
-    product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
+def update_product_by_id(id: int, to_update_product_data: ProductUpdate, session: Session):
+    product = session.exec(select(Product).where(Product.id == id)).one_or_none()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
 
@@ -50,7 +50,3 @@ def update_product_by_id(product_id: int, to_update_product_data: ProductUpdate,
     
     return product  # Return the updated product
 
-# Validate Product by ID
-def validate_product_by_id(product_id: int, session: Session) -> Product | None:
-    product = session.exec(select(Product).where(Product.id == product_id)).one_or_none()
-    return product
