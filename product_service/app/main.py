@@ -8,7 +8,7 @@ import asyncio
 import json
 
 from app.settings import KAFKA_PRODUCT_TOPIC
-from app.models.models import Product, ProductCreate
+from app.models.models import Product, ProductCreate, ProductUpdate
 from app.crud.product_crud import get_all_products, get_product_by_id, delete_product_by_id, update_product_by_id
 from app.db import create_tables, get_session
 from app.kafka.producer import producer
